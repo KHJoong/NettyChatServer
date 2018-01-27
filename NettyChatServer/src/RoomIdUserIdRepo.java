@@ -9,3 +9,17 @@ public class RoomIdUserIdRepo {
 	}
 	
 }
+
+
+//import java.util.HashMap;
+//import java.util.Map;
+//
+//public class RoomIdUserIdRepo {
+//	
+//	private final Map<String, String> roomIdUserIdMap = new HashMap<>();
+//	
+//	public Map<String, String> getRoomIdUserIdMap() {
+//		return roomIdUserIdMap;
+//	}
+//	
+//}

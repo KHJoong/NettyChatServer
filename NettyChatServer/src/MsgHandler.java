@@ -14,26 +14,35 @@ public class MsgHandler extends SimpleChannelInboundHandler<String>{
 	
 	ObjectMapper objectMapper = new ObjectMapper();
 	
-	MessageManagement messageManagement;
-	UserManagement userManagement;
-	
+	MessageManagement messageManagement = new MessageManagement();
+	UserManagement userManagement = new UserManagement();
 	
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception{
 		
-		Map<String, Object> result = new HashMap<>();
+		System.out.println("MsgHandler:channelRead0:msg:"+msg);		
 		
+		Map<String, Object> sendData = new HashMap<>();
+
 		Channel channel = ctx.channel();
-		
-		Map<String, Object> data = null;
+
+		Map<String, Object> receivedData;
 		try {
-			data = objectMapper.readValue(msg, new TypeReference<Map<String, Object>>() {
+
+			sendData = receivedData = objectMapper.readValue(msg, new TypeReference<Map<String, Object>>() {
 			});
+
 		} catch (JsonParseException | JsonMappingException e) {
+
 			e.printStackTrace();
+			return;
+
 		}
+		System.out.println("MsgHandler:channelRead0:channel:"+channel);
+		System.out.println("MsgHandler:channelRead0:receivedData:"+receivedData);
+		System.out.println("MsgHandler:channelRead0:sendData:"+sendData);
+		messageManagement.execute(channel, receivedData, sendData);
 		
-		messageManagement.execute(channel, data, result);
 		
 	}
 

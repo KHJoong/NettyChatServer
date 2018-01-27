@@ -6,33 +6,43 @@ import io.netty.util.internal.StringUtil;
 
 public class UserManagement {
 
-	ChannelIdUserIdRepo channelIdUserIdRepo;
-	UserIdChannelIdRepo userIdChannelIdRepo;
-	RoomIdUserIdRepo roomIdUserIdRepo;
-	UserIdRoomIdRepo userIdRoomIdRepo;
+//	ChannelIdUserIdRepo channelIdUserIdRepo;
+//	UserIdChannelIdRepo userIdChannelIdRepo;
+//	RoomIdUserIdRepo roomIdUserIdRepo;
+//	UserIdRoomIdRepo userIdRoomIdRepo;
 	
-	public void join(Channel channel, String type, Map<String, Object> receivedData, Map<String, Object> sendData) throws Exception{
+	public void join(Channel channel, String type, Map<String, Object> receivedData) throws Exception{
 		
 		String userId = (String) receivedData.get("userId");
 		
-		channelIdUserIdRepo.getChannelIdUserIdMap().put(channel.id(), userId);
-		userIdChannelIdRepo.getuserIdChannelIdMap().put(userId, channel);
+		NettyChatServer.channelIdUserIdRepo.getChannelIdUserIdMap().put(channel.id(), userId);
+		NettyChatServer.userIdChannelIdRepo.getuserIdChannelIdMap().put(userId, channel);
+				
+		System.out.println("UserManagement:join:channel.id:"+channel.id()+" / userId:"+userId);
+		System.out.println("UserManagement:join:channel.id:"+NettyChatServer.channelIdUserIdRepo.getChannelIdUserIdMap().keySet());
+		System.out.println("UserManagement:join:channel.id:"+NettyChatServer.userIdChannelIdRepo.getuserIdChannelIdMap().keySet());
 		
 	}
 	
 	public void exit(Channel channel) {
 		ChannelId channelId = channel.id();
-		Map<ChannelId, String> channelIdUserIdMap = channelIdUserIdRepo.getChannelIdUserIdMap();
+		Map<ChannelId, String> channelIdUserIdMap = NettyChatServer.channelIdUserIdRepo.getChannelIdUserIdMap();
 		String userId = channelIdUserIdMap.get(channelId);
 		
+		System.out.println("UserManagement:exit"+channel.id()+"/"+userId);
+		
 		if(!StringUtil.isNullOrEmpty(userId)) {
-			userIdChannelIdRepo.getuserIdChannelIdMap().remove(userId);
+			NettyChatServer.userIdChannelIdRepo.getuserIdChannelIdMap().remove(userId);
 			
-			String rooomId = userIdRoomIdRepo.getUserIdRoomIdMap().get(userId);
+			String roomId = NettyChatServer.userIdRoomIdRepo.getUserIdRoomIdMap().get(userId);
 			
-			if(!StringUtil.isNullOrEmpty(rooomId)) {
-				roomIdUserIdRepo.getRoomIdUserIdMap().remove(rooomId, userId);
-				userIdRoomIdRepo.getUserIdRoomIdMap().remove(userId);
+			System.out.println("UserManagement:exit"+roomId);
+			
+			if(!StringUtil.isNullOrEmpty(roomId)) {
+				NettyChatServer.roomIdUserIdRepo.getRoomIdUserIdMap().remove(roomId, userId);
+				NettyChatServer.userIdRoomIdRepo.getUserIdRoomIdMap().remove(userId);
+				
+				System.out.println("UserManagement:exit:secondIf");				
 			}
 			
 		}

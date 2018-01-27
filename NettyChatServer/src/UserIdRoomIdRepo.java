@@ -1,9 +1,9 @@
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class UserIdRoomIdRepo {
-
-	private final Map<String, String> userIdRoomIdMap = new ConcurrentHashMap<>();
+	
+	private final Map<String, String> userIdRoomIdMap = new HashMap<>();
 	
 	public Map<String, String> getUserIdRoomIdMap() {
 		return userIdRoomIdMap;

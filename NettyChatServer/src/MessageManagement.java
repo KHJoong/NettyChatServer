@@ -14,16 +14,24 @@ public class MessageManagement {
 	
 	public void execute(Channel channel, Map<String, Object> receivedData, Map<String, Object> sendData) throws Exception {
 		
+		userManagement = new UserManagement();
+		roomManagement = new RoomManagement();
+		
+		System.out.println("MessageManagement:execute:channel:"+channel);
+		System.out.println("MessageManagement:execute:receivedData"+receivedData);
+		System.out.println("MessageManagement:execute:sendData:"+sendData);
+		
 		String type = (String) receivedData.get("type");
+		
 		
 		switch (type) {
 			case "join" :
-				userManagement.join(channel, type, receivedData, sendData);
+				userManagement.join(channel, type, receivedData);
 				break;
 			case "create_room" :
 				roomManagement.create(channel, type, sendData);
 				break;
-			case "enter_room" :
+			case "enter_room" :				
 				roomManagement.enter(channel, type, receivedData, sendData);
 				break;
 			case "exit_room" :
@@ -35,4 +43,9 @@ public class MessageManagement {
 		}
 		
 	}
+	
+	void sendMessage(Channel channel, Map<String, Object> sendData) throws Exception{
+		channel.writeAndFlush(objectMapper.writeValueAsString(sendData)+System.lineSeparator());
+	}
+	
 }

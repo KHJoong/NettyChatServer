@@ -1,63 +1,102 @@
 import java.util.Map;
-import java.util.UUID;
 
 import io.netty.channel.Channel;
 
 public class RoomManagement {
 
-	UserManagement userManagement;
+	UserManagement userManagement = new UserManagement();
+	MessageManagement messageManagement = new MessageManagement();
 	
-	UserIdChannelIdRepo userIdChannelIdRepo;
-	ChannelIdUserIdRepo channelIdUserIdRepo;
-	UserIdRoomIdRepo userIdRoomIdRepo;
-	RoomIdUserIdRepo roomIdUserIdRepo;
+//	UserIdChannelIdRepo userIdChannelIdRepo;
+//	ChannelIdUserIdRepo channelIdUserIdRepo;
+//	UserIdRoomIdRepo userIdRoomIdRepo;
+//	RoomIdUserIdRepo roomIdUserIdRepo;
 	
 	public void create(Channel channel, String type, Map<String, Object> receivedData) throws Exception{
-		String userId = channelIdUserIdRepo.getChannelIdUserIdMap().get(channel.id());
-		
-		String roomId = UUID.randomUUID().toString();
-		
-		roomIdUserIdRepo.getRoomIdUserIdMap().put(roomId, userId);
-		userIdRoomIdRepo.getUserIdRoomIdMap().put(userId, roomId);		
-	}
-	
-	public void enter(Channel channel, String type, Map<String, Object> receivedData, Map<String, Object> sendData) throws Exception{
-		String userId = channelIdUserIdRepo.getChannelIdUserIdMap().get(channel.id());
+		String userId = NettyChatServer.channelIdUserIdRepo.getChannelIdUserIdMap().get(channel.id());
 		
 		String roomId = (String)receivedData.get("roomId");
 		
-		roomIdUserIdRepo.getRoomIdUserIdMap().put(roomId, userId);
-		userIdRoomIdRepo.getUserIdRoomIdMap().put(userId, roomId);
+		NettyChatServer.roomIdUserIdRepo.getRoomIdUserIdMap().put(roomId, userId);
+		NettyChatServer.userIdRoomIdRepo.getUserIdRoomIdMap().put(userId, roomId);		
+		
+		System.out.println("RoomManageMent:create:"+channel+"/"+type+"/"+receivedData);
+	}
+	
+	public void enter(Channel channel, String type, Map<String, Object> receivedData, Map<String, Object> sendData) throws Exception{
+		try {
+			System.out.println("RoomManageMent:enter:"+channel);
+			System.out.println("RoomManageMent:enter:"+type);
+			System.out.println("RoomManageMent:enter:"+receivedData);
+			System.out.println("RoomManageMent:enter:"+sendData);
+		} catch(NullPointerException e) {
+			System.out.println("null");
+		}
+		
+		String userId = (String) receivedData.get("userId");
+		String roomId = (String) receivedData.get("roomId");
+		
+		System.out.println("RoomManageMent:enter:userId:"+userId);
+		System.out.println("RoomManageMent:enter:roomId:"+roomId);
+		
+		if(NettyChatServer.roomIdUserIdRepo.getRoomIdUserIdMap().getCollection(roomId)==null || !NettyChatServer.roomIdUserIdRepo.getRoomIdUserIdMap().getCollection(roomId).contains(userId)) {			
+			NettyChatServer.roomIdUserIdRepo.getRoomIdUserIdMap().put(roomId, userId);
+			NettyChatServer.userIdRoomIdRepo.getUserIdRoomIdMap().put(userId, roomId);
+			System.out.println("RoomManageMent:enter:RoomUser:"+NettyChatServer.roomIdUserIdRepo.getRoomIdUserIdMap().getCollection(roomId));
+			System.out.println("RoomManageMent:enter:UserRoom:"+NettyChatServer.userIdRoomIdRepo.getUserIdRoomIdMap().keySet());
+		}
+		
 	}
 	
 	
 	public void exit(Channel channel, String type, Map<String, Object> sendData) throws Exception{
-		String userId = channelIdUserIdRepo.getChannelIdUserIdMap().get(channel.id());
+		String userId = NettyChatServer.channelIdUserIdRepo.getChannelIdUserIdMap().get(channel.id());
 		
-		String roomId = userIdRoomIdRepo.getUserIdRoomIdMap().get(userId);
+		String roomId = NettyChatServer.userIdRoomIdRepo.getUserIdRoomIdMap().get(userId);
 		
-		roomIdUserIdRepo.getRoomIdUserIdMap().remove(roomId, userId);
-		userIdRoomIdRepo.getUserIdRoomIdMap().remove(userId);
+		NettyChatServer.roomIdUserIdRepo.getRoomIdUserIdMap().remove(roomId, userId);
+		NettyChatServer.userIdRoomIdRepo.getUserIdRoomIdMap().remove(userId);
+		
+		System.out.println("RoomManageMent:exit:"+channel+"/"+type+"/"+sendData);
 	}
 	
 	
 	public void send(Channel channel, String type, Map<String, Object> receivedData, Map<String, Object> sendData) throws Exception{
-		String userId = channelIdUserIdRepo.getChannelIdUserIdMap().get(channel.id());
 		
-		sendData.put("type", type);
-		sendData.put("userId", userId);
-		sendData.put("content", receivedData.get("content"));
+		String userId = (String) receivedData.get("userId");
+		String currentRoom = (String) receivedData.get("currentRoom");
 		
-		String roomId = userIdRoomIdRepo.getUserIdRoomIdMap().get(userId);
+		Channel toChannel = NettyChatServer.userIdChannelIdRepo.getuserIdChannelIdMap().get(userId);
 		
-		roomIdUserIdRepo.getRoomIdUserIdMap().getCollection(roomId).parallelStream().forEach(otherUserId ->{
-			Channel otherChannel = userIdChannelIdRepo.getuserIdChannelIdMap().get(otherUserId);
+		int numOfMem = NettyChatServer.roomIdUserIdRepo.getRoomIdUserIdMap().getCollection(currentRoom).size();
+		
+		String[] toUser = (String[]) NettyChatServer.roomIdUserIdRepo.getRoomIdUserIdMap().getCollection(currentRoom).toArray(new String[numOfMem]);
+		for(int i=0 ; i< numOfMem; i++) {
 			
-			if(!otherChannel.isActive()) {
-				userManagement.exit(otherChannel);
-				return;
-			}
-		});
+		}
+		
+//		String userId = NettyChatServer.channelIdUserIdRepo.getChannelIdUserIdMap().get(channel.id());
+//		
+//		sendData.put("type", type);
+//		sendData.put("userId", userId);
+//		sendData.put("content", receivedData.get("content"));
+//		
+//		String roomId = NettyChatServer.userIdRoomIdRepo.getUserIdRoomIdMap().get(userId);
+		
+//		NettyChatServer.roomIdUserIdRepo.getRoomIdUserIdMap().getCollection(roomId).parallelStream().forEach(otherUserId ->{
+//			Channel otherChannel = NettyChatServer.userIdChannelIdRepo.getuserIdChannelIdMap().get(otherUserId);
+//			
+//			if(!otherChannel.isActive()) {
+//				userManagement.exit(otherChannel);
+//				return;
+//			}
+//			
+//			try {
+//				messageManagement.sendMessage(channel, sendData);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		});
 	}
 	
 }
