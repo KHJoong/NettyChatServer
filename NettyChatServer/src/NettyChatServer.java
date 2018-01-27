@@ -17,6 +17,9 @@ import io.netty.util.CharsetUtil;
 
 public class NettyChatServer {
 
+	// 유저의 정보를 저장해두는 공간입니다.
+	// channel과 user를 연결하여 저장해둔 공간 > ChannelIdUserIdRepo & UserIdChannelIdRepo
+	// Room과 user를 연결하여 저장해둔 공간 > RoomIdUserIdRepo & UserIdRoomIdRepo
 	static ChannelIdUserIdRepo channelIdUserIdRepo = new ChannelIdUserIdRepo();
 	static UserIdChannelIdRepo userIdChannelIdRepo = new UserIdChannelIdRepo();
 	static RoomIdUserIdRepo roomIdUserIdRepo = new RoomIdUserIdRepo();
@@ -48,7 +51,6 @@ public class NettyChatServer {
 			                out.add(in.readBytes(in.readableBytes()));
 			            }
 			        });
-
 					
 					serverChannelPipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
 					serverChannelPipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
