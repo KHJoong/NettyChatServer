@@ -7,5 +7,7 @@
 	<classpathentry kind="lib" path="libs/json-simple-1.1.1.jar"/>
 	<classpathentry kind="lib" path="libs/jackson-all-1.9.0.jar"/>
 	<classpathentry kind="lib" path="libs/commons-collections-3.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/kimhj/git/TheTeacherChatServer/NettyChatServer/libs/jedis-2.8.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/kimhj/git/TheTeacherChatServer/NettyChatServer/libs/commons-pool2-2.5.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
